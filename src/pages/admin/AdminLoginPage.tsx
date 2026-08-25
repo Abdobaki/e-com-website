@@ -36,12 +36,16 @@ export const AdminLoginPage: React.FC = () => {
           return;
         }
 
-        const msg =
-          language === 'ar'
-            ? 'بيانات الدخول غير صحيحة. يرجى التأكد من إنشاء الحساب في Supabase Auth.'
-            : authError.message.includes('Invalid login credentials')
-            ? 'Identifiants incorrects. Assurez-vous d\'avoir créé cet utilisateur dans Supabase Auth.'
-            : authError.message;
+        let msg = authError.message;
+        if (authError.message.includes('Invalid login credentials')) {
+          msg = language === 'ar'
+            ? 'بيانات الدخول غير صحيحة. يرجى التأكد من البريد وكلمة المرور المسجلة في Supabase.'
+            : 'Identifiants incorrects. Vérifiez l\'email et le mot de passe dans Supabase Auth.';
+        } else if (authError.message.includes('Forbidden use of secret API key') || authError.message.includes('secret API key')) {
+          msg = language === 'ar'
+            ? 'خطأ في مفتاح Supabase: استخدم مفتاح anon public من لوحة تحكم Supabase وليس مفتاح service_role.'
+            : 'Erreur clé API : Vous utilisez la clé secrète (service_role). Veuillez utiliser la clé publique "anon public" dans votre fichier .env.';
+        }
         setError(msg);
       } else if (data?.user) {
         loginAdmin(data.user.email || email.trim());
