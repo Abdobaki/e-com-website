@@ -19,7 +19,7 @@ import type { Product } from '../../types';
 export const AdminProductsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { t, language } = useLanguageStore();
-  const { products, categories, settings, addProduct, updateProduct, deleteProduct } = useAppStore();
+  const { products, categories, suppliers, settings, addProduct, updateProduct, deleteProduct } = useAppStore();
   const translations = t();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -551,16 +551,51 @@ export const AdminProductsPage: React.FC = () => {
 
                   {/* Supplier */}
                   <div>
-                    <label className="block font-bold text-indigo-950 mb-1">
-                      Fournisseur / Lieu d'achat
-                    </label>
-                    <input
-                      type="text"
-                      value={supplier}
-                      onChange={(e) => setSupplier(e.target.value)}
-                      placeholder="Ex: Grossiste El-Eulma / Importateur Alger"
-                      className="w-full bg-white border border-indigo-300 text-indigo-900 font-medium p-2.5 rounded-xl outline-none focus:border-indigo-500"
-                    />
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block font-bold text-indigo-950">
+                        Fournisseur / Lieu d'achat
+                      </label>
+                      {suppliers.length > 0 && (
+                        <span className="text-[10px] text-indigo-600 font-semibold">
+                          (Choisir dans la liste ou taper un nouveau)
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <input
+                        type="text"
+                        list="suppliers-datalist"
+                        value={supplier}
+                        onChange={(e) => setSupplier(e.target.value)}
+                        placeholder="Choisir un fournisseur ou saisir un nouveau..."
+                        className="w-full bg-white border border-indigo-300 text-indigo-900 font-medium p-2.5 rounded-xl outline-none focus:border-indigo-500 text-sm"
+                      />
+                      <datalist id="suppliers-datalist">
+                        {suppliers.map((s) => (
+                          <option key={s.id} value={s.name} />
+                        ))}
+                      </datalist>
+
+                      {/* Quick select chips for existing suppliers */}
+                      {suppliers.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {suppliers.map((s) => (
+                            <button
+                              type="button"
+                              key={s.id}
+                              onClick={() => setSupplier(s.name)}
+                              className={`text-[11px] px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                                supplier === s.name
+                                  ? 'bg-indigo-600 text-white'
+                                  : 'bg-indigo-100/70 text-indigo-800 hover:bg-indigo-200'
+                              }`}
+                            >
+                              + {s.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -34,6 +34,7 @@ interface AppStore {
   // Orders Management
   addOrder: (order: Omit<Order, 'id' | 'order_number' | 'created_at' | 'status'>) => Promise<Order>;
   updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
   
   // Supplier Payments
   addSupplierPayment: (payment: Omit<SupplierPayment, 'id' | 'created_at'>) => Promise<SupplierPayment>;
@@ -51,256 +52,9 @@ interface AppStore {
   logoutAdmin: () => void;
 }
 
-// Generate rich sample order history across the last 7 days for the profit chart
-const now = new Date();
-const getPastDate = (daysAgo: number, hoursAgo = 0) => {
-  const d = new Date(now);
-  d.setDate(d.getDate() - daysAgo);
-  d.setHours(d.getHours() - hoursAgo);
-  return d.toISOString();
-};
-
-const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ord-1042',
-    order_number: 'ORD-1042',
-    customer_name: 'Mohamed Benali',
-    customer_phone: '0555123456',
-    wilaya: '28 - M’Sila',
-    wilaya_code: '28',
-    commune: 'M’Sila',
-    address: 'Cité 500 Logements, Bât A4',
-    notes: 'Appeler avant de venir SVP',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-1',
-        product_name: 'Four Encastrable Électrique 65L Inox Multi-Fonctions',
-        product_price: 49500,
-        product_cost_price: 38000,
-        product_image: 'https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?auto=format&fit=crop&w=800&q=80',
-        quantity: 1
-      }
-    ],
-    subtotal: 49500,
-    delivery_fee: 700,
-    total: 50200,
-    status: 'delivered',
-    created_at: getPastDate(0, 2) // Today
-  },
-  {
-    id: 'ord-1043',
-    order_number: 'ORD-1043',
-    customer_name: 'Amina Mansouri',
-    customer_phone: '0661987654',
-    wilaya: '16 - Alger',
-    wilaya_code: '16',
-    commune: 'Hydra',
-    address: 'Résidence Les Pins, Apt 12',
-    notes: 'Livraison après 17h',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-3',
-        product_name: 'Plaque de Cuisson Gaz 4 Feux Verre Trempé Noir 60cm',
-        product_price: 33500,
-        product_cost_price: 25000,
-        product_image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
-        quantity: 1
-      },
-      {
-        product_id: 'prod-5',
-        product_name: 'Hotte Aspirante Inclinée 90cm Verre Noir & Inox 750 m³/h',
-        product_price: 38000,
-        product_cost_price: 29000,
-        product_image: 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=800&q=80',
-        quantity: 1
-      }
-    ],
-    subtotal: 71500,
-    delivery_fee: 400,
-    total: 71900,
-    status: 'confirmed',
-    created_at: getPastDate(0, 5) // Today
-  },
-  {
-    id: 'ord-1044',
-    order_number: 'ORD-1044',
-    customer_name: 'Karim Bouzid',
-    customer_phone: '0770334455',
-    wilaya: '31 - Oran',
-    wilaya_code: '31',
-    commune: 'Bir El Djir',
-    address: 'Akid Lotfi',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-7',
-        product_name: 'Machine Espresso Automatique avec Broyeur à Grains 15 Bars',
-        product_price: 78000,
-        product_cost_price: 61000,
-        product_image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?auto=format&fit=crop&w=800&q=80',
-        quantity: 1
-      }
-    ],
-    subtotal: 78000,
-    delivery_fee: 600,
-    total: 78600,
-    status: 'delivered',
-    created_at: getPastDate(1, 4) // Yesterday
-  },
-  {
-    id: 'ord-1045',
-    order_number: 'ORD-1045',
-    customer_name: 'Yacine Brahimi',
-    customer_phone: '0560889900',
-    wilaya: '19 - Sétif',
-    wilaya_code: '19',
-    commune: 'El Eulma',
-    address: 'Boulevard Central',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-2',
-        product_name: 'Four Encastrable Pyrolyse Premium 71L Digital Touch',
-        product_price: 84000,
-        product_cost_price: 66000,
-        product_image: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80',
-        quantity: 1
-      }
-    ],
-    subtotal: 84000,
-    delivery_fee: 600,
-    total: 84600,
-    status: 'delivered',
-    created_at: getPastDate(2, 6) // 2 days ago
-  },
-  {
-    id: 'ord-1046',
-    order_number: 'ORD-1046',
-    customer_name: 'Samir Khelil',
-    customer_phone: '0662112233',
-    wilaya: '25 - Constantine',
-    wilaya_code: '25',
-    commune: 'El Khroub',
-    address: 'Cité Massinissa',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-8',
-        product_name: 'Robot Pâtissier Multifonction 1500W Bol Inox 6.5L + Kit Pâtisserie',
-        product_price: 29500,
-        product_cost_price: 22000,
-        product_image: 'https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=800&q=80',
-        quantity: 2
-      }
-    ],
-    subtotal: 59000,
-    delivery_fee: 600,
-    total: 59600,
-    status: 'delivered',
-    created_at: getPastDate(3, 3) // 3 days ago
-  },
-  {
-    id: 'ord-1047',
-    order_number: 'ORD-1047',
-    customer_name: 'Nadia Cherif',
-    customer_phone: '0551778899',
-    wilaya: '09 - Blida',
-    wilaya_code: '09',
-    commune: 'Boufarik',
-    address: 'Centre Ville',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-1',
-        product_name: 'Four Encastrable Électrique 65L Inox Multi-Fonctions',
-        product_price: 49500,
-        product_cost_price: 38000,
-        quantity: 1
-      },
-      {
-        product_id: 'prod-4',
-        product_name: 'Plaque Induction 4 Foyers Booster & Minuterie Individuelle',
-        product_price: 62000,
-        product_cost_price: 48000,
-        quantity: 1
-      }
-    ],
-    subtotal: 111500,
-    delivery_fee: 500,
-    total: 112000,
-    status: 'delivered',
-    created_at: getPastDate(4, 5) // 4 days ago
-  },
-  {
-    id: 'ord-1048',
-    order_number: 'ORD-1048',
-    customer_name: 'Farid Meziane',
-    customer_phone: '0771445566',
-    wilaya: '15 - Tizi Ouzou',
-    wilaya_code: '15',
-    commune: 'Azazga',
-    address: 'Rue Principale',
-    payment_method: 'cod',
-    items: [
-      {
-        product_id: 'prod-6',
-        product_name: 'Micro-ondes Grill Encastrable 25L Inox Anti-Empreinte',
-        product_price: 36000,
-        product_cost_price: 27000,
-        quantity: 1
-      }
-    ],
-    subtotal: 36000,
-    delivery_fee: 600,
-    total: 36600,
-    status: 'delivered',
-    created_at: getPastDate(5, 7) // 5 days ago
-  }
-];
-
-const INITIAL_SUPPLIER_PAYMENTS: SupplierPayment[] = [
-  {
-    id: 'pay-1',
-    product_name: 'Four Encastrable Électrique 65L Inox Multi-Fonctions',
-    supplier_name: 'Grossiste El-Eulma (Lot 14)',
-    amount_paid: 150000,
-    payment_date: '2026-08-20 10:30',
-    payment_method: 'cash',
-    notes: 'Premier versement espèces pour le lot de fours',
-    created_at: getPastDate(4)
-  },
-  {
-    id: 'pay-2',
-    product_name: 'Plaques & Hottes Encastrables',
-    supplier_name: 'Importateur Alger (Zone Oued Smar)',
-    amount_paid: 200000,
-    payment_date: '2026-08-22 15:45',
-    payment_method: 'virement',
-    notes: 'Avance par virement bancaire',
-    created_at: getPastDate(2)
-  }
-];
-
-const INITIAL_SUPPLIERS: Supplier[] = [
-  {
-    id: 'sup-1',
-    name: 'Grossiste El-Eulma (Lot 14)',
-    phone: '0555667788',
-    address: 'Zone Industrielle, El Eulma - Sétif',
-    notes: 'Fours, plaques & hottes. Livraison rapide.',
-    created_at: getPastDate(30)
-  },
-  {
-    id: 'sup-2',
-    name: 'Importateur Alger (Zone Oued Smar)',
-    phone: '0661223344',
-    address: 'Zone Commerciale Oued Smar - Alger',
-    notes: 'Micro-ondes, robots, machines café. Paiement par virement.',
-    created_at: getPastDate(20)
-  }
-];
+const INITIAL_ORDERS: Order[] = [];
+const INITIAL_SUPPLIER_PAYMENTS: SupplierPayment[] = [];
+const INITIAL_SUPPLIERS: Supplier[] = [];
 
 export const useAppStore = create<AppStore>()(
   persist(
@@ -551,6 +305,18 @@ export const useAppStore = create<AppStore>()(
         }
       },
 
+      deleteOrder: async (orderId) => {
+        set((state) => ({
+          orders: state.orders.filter((order) => order.id !== orderId)
+        }));
+
+        try {
+          await supabase.from('orders').delete().eq('id', orderId);
+        } catch {
+          // fallback
+        }
+      },
+
       addSupplierPayment: async (paymentData) => {
         const newPayment: SupplierPayment = {
           ...paymentData,
@@ -656,7 +422,7 @@ export const useAppStore = create<AppStore>()(
       }
     }),
     {
-      name: 'cuisinedz_main_app_store_v3',
+      name: 'cuisinedz_main_app_store_v4',
     }
   )
 );

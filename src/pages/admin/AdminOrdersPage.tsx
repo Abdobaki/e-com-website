@@ -3,16 +3,16 @@ import {
   Search, 
   MessageCircle, 
   Eye, 
+  Trash2,
   X
 } from 'lucide-react';
 import { useLanguageStore } from '../../lib/i18n';
 import { useAppStore } from '../../store/useAppStore';
-import type { Order, OrderStatus } from '../../types';
-
+import type { Order, OrderStatus, OrderItem } from '../../types';
 
 export const AdminOrdersPage: React.FC = () => {
   const { t, language } = useLanguageStore();
-  const { orders, settings, updateOrderStatus } = useAppStore();
+  const { orders, settings, updateOrderStatus, deleteOrder } = useAppStore();
   const translations = t();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +21,18 @@ export const AdminOrdersPage: React.FC = () => {
 
   const currencySymbol = language === 'ar' ? settings.currency_ar || 'د.ج' : settings.currency || 'DA';
   const formatPrice = (num: number) => num.toLocaleString('fr-DZ');
+
+  const handleDeleteOrder = (orderId: string, orderNumber: string) => {
+    const confirmMsg = language === 'ar'
+      ? `هل أنت متأكد من حذف الطلبية #${orderNumber}؟`
+      : `Êtes-vous sûr de vouloir supprimer la commande #${orderNumber} ?`;
+    if (window.confirm(confirmMsg)) {
+      deleteOrder(orderId);
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(null);
+      }
+    }
+  };
 
   const filteredOrders = orders.filter((order) => {
     if (selectedStatus !== 'all' && order.status !== selectedStatus) {
@@ -176,6 +188,13 @@ export const AdminOrdersPage: React.FC = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        <button
+                          onClick={() => handleDeleteOrder(order.id, order.order_number)}
+                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors"
+                          title="Supprimer la commande"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -233,7 +252,7 @@ export const AdminOrdersPage: React.FC = () => {
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-900 uppercase">Articles</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {selectedOrder.items.map((item, idx) => (
+                {selectedOrder.items.map((item: OrderItem, idx: number) => (
                   <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-slate-50">
                     <span className="font-semibold text-slate-800">{item.product_name} (x{item.quantity})</span>
                     <span className="font-bold text-slate-900">{formatPrice(item.product_price * item.quantity)} {currencySymbol}</span>
@@ -258,14 +277,23 @@ export const AdminOrdersPage: React.FC = () => {
               </div>
             </div>
 
-            {/* WhatsApp action */}
-            <button
-              onClick={() => handleWhatsAppContact(selectedOrder)}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Contacter le client sur WhatsApp</span>
-            </button>
+            {/* Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+              <button
+                onClick={() => handleWhatsAppContact(selectedOrder)}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>WhatsApp</span>
+              </button>
+              <button
+                onClick={() => handleDeleteOrder(selectedOrder.id, selectedOrder.order_number)}
+                className="w-full bg-red-50 hover:bg-red-600 hover:text-white text-red-600 font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-200"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Supprimer</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
