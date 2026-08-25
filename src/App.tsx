@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ScrollToTop } from './components/ScrollToTop';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -37,7 +37,7 @@ function App() {
   }, [language, fetchData]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <ScrollToTop />
       <Routes>
         {/* Customer Storefront Routes */}
@@ -69,7 +69,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

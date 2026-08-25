@@ -242,11 +242,11 @@ export const AdminSuppliersPage: React.FC = () => {
                     <CreditCard className="w-3 h-3" />
                     <span>Payé</span>
                   </div>
-                  <span className="font-black text-emerald-600">{formatPrice(stats.totalPaid)}</span>
+                  <span className="font-black text-emerald-600">{formatPrice(stats.totalPaid)} {currencySymbol}</span>
                 </div>
                 <div>
                   <div className="text-red-500 font-bold mb-0.5">Reste</div>
-                  <span className="font-black text-red-600">{formatPrice(stats.remaining)}</span>
+                  <span className="font-black text-red-600">{formatPrice(stats.remaining)} {currencySymbol}</span>
                 </div>
               </div>
 
