@@ -7,8 +7,7 @@ import {
   Home, 
   Phone, 
   MapPin, 
-  MessageCircle, 
-  ChefHat 
+  MessageCircle 
 } from 'lucide-react';
 
 import { useLanguageStore } from '../lib/i18n';
@@ -92,9 +91,13 @@ export const OrderConfirmationPage: React.FC = () => {
       {/* Invoice / Receipt Box */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-2">
-            <ChefHat className="w-6 h-6 text-amber-500" />
-            <span className="font-extrabold text-base text-slate-900">{settings.store_name}</span>
+          <div className="flex items-center gap-2.5">
+            <img
+              src="./logo.png"
+              alt="cuisineDZ"
+              className="w-8 h-8 object-contain rounded-lg"
+            />
+            <span className="font-black text-base text-slate-900">{settings.store_name}</span>
           </div>
           <button
             onClick={handlePrint}

@@ -9,7 +9,6 @@ import {
   Settings, 
   LogOut, 
   ExternalLink, 
-  ChefHat, 
   Menu, 
   X,
   Languages
@@ -110,8 +109,12 @@ export const AdminLayout: React.FC = () => {
     <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <ChefHat className="w-6 h-6 text-amber-500" />
+        <div className="flex items-center gap-2.5">
+          <img
+            src="./logo.png"
+            alt="cuisineDZ"
+            className="w-7 h-7 object-contain rounded-lg bg-white p-0.5"
+          />
           <span className="font-bold text-sm">{settings.store_name} Admin</span>
         </div>
         <button
@@ -131,11 +134,13 @@ export const AdminLayout: React.FC = () => {
         <div className="space-y-8">
           {/* Brand */}
           <div className="flex items-center gap-3 pb-6 border-b border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
-              <ChefHat className="w-6 h-6" />
-            </div>
+            <img
+              src="./logo.png"
+              alt="cuisineDZ"
+              className="w-11 h-11 object-contain rounded-xl bg-white p-1 shrink-0"
+            />
             <div>
-              <h2 className="text-white font-extrabold text-base tracking-tight leading-tight">
+              <h2 className="text-white font-black text-base tracking-tight leading-tight">
                 {settings.store_name}
               </h2>
               <span className="text-[11px] text-amber-400 font-semibold uppercase tracking-wider block">

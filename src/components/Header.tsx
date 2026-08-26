@@ -7,7 +7,6 @@ import {
   Menu, 
   X, 
   Flame, 
-  ChefHat, 
   Phone, 
   ShieldCheck,
   SlidersHorizontal
@@ -102,12 +101,14 @@ export const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18 gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <ChefHat className="w-6 h-6" />
-            </div>
+          <Link to="/" className="flex items-center gap-3 shrink-0 group">
+            <img
+              src="./logo.png"
+              alt="cuisineDZ"
+              className="w-11 h-11 object-contain rounded-xl drop-shadow-sm group-hover:scale-105 transition-transform"
+            />
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-slate-900 block leading-tight">
+              <span className="font-black text-xl tracking-tight text-slate-900 block leading-tight">
                 {settings.store_name}
               </span>
               <span className="text-[11px] text-amber-700 font-semibold tracking-wider uppercase block">

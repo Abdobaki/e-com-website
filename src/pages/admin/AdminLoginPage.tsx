@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ChefHat, Lock, Mail, ArrowRight, ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useLanguageStore } from '../../lib/i18n';
 import { useAppStore } from '../../store/useAppStore';
 import { supabase } from '../../lib/supabase';
@@ -56,9 +56,11 @@ export const AdminLoginPage: React.FC = () => {
       <div className="max-w-md w-full bg-slate-900 rounded-3xl p-8 sm:p-10 border border-slate-800 shadow-2xl space-y-6">
         {/* Header */}
         <div className="text-center space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/20">
-            <ChefHat className="w-8 h-8" />
-          </div>
+          <img
+            src="./logo.png"
+            alt="cuisineDZ"
+            className="w-20 h-20 object-contain mx-auto drop-shadow-lg"
+          />
           <h1 className="text-2xl font-black text-white tracking-tight">
             {language === 'ar' ? 'تسجيل دخول الإدارة' : language === 'en' ? 'Admin Portal Login' : translations.login}
           </h1>

@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  ChefHat, 
   Phone, 
-  MapPin, 
   Mail, 
+  MapPin, 
   MessageCircle, 
   Truck, 
   ShieldCheck, 
@@ -83,11 +82,13 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950">
-                <ChefHat className="w-6 h-6" />
-              </div>
-              <span className="font-extrabold text-2xl text-white tracking-tight">
+            <Link to="/" className="flex items-center gap-3">
+              <img
+                src="./logo.png"
+                alt="cuisineDZ"
+                className="w-12 h-12 object-contain rounded-xl bg-white p-1"
+              />
+              <span className="font-black text-2xl text-white tracking-tight">
                 {settings.store_name}
               </span>
             </Link>
