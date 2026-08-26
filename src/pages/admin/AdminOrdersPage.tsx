@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useLanguageStore } from '../../lib/i18n';
 import { useAppStore } from '../../store/useAppStore';
-import type { Order, OrderStatus, OrderItem } from '../../types';
+import type { Order, OrderStatus } from '../../types';
 
 export const AdminOrdersPage: React.FC = () => {
   const { t, language } = useLanguageStore();
