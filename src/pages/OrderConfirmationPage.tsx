@@ -132,7 +132,7 @@ export const OrderConfirmationPage: React.FC = () => {
             {translations.orderedItems}
           </h3>
           <div className="space-y-3">
-            {order.items.map((item, idx) => (
+            {(order.items || (order as any).order_items || []).map((item: any, idx: number) => (
               <div key={idx} className="flex items-center justify-between text-xs sm:text-sm py-2 border-b border-slate-100 last:border-0">
                 <div className="flex items-center gap-3">
                   {item.product_image && (
@@ -140,11 +140,11 @@ export const OrderConfirmationPage: React.FC = () => {
                   )}
                   <div>
                     <span className="font-bold text-slate-900 block">{item.product_name}</span>
-                    <span className="text-xs text-slate-500">{translations.quantity}: {item.quantity}</span>
+                    <span className="text-xs text-slate-500">{translations.quantity}: {item.quantity || 1}</span>
                   </div>
                 </div>
                 <span className="font-bold text-slate-900">
-                  {formatPrice(item.product_price * item.quantity)} {currencySymbol}
+                  {formatPrice((item.product_price || 0) * (item.quantity || 1))} {currencySymbol}
                 </span>
               </div>
             ))}

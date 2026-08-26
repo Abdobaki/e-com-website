@@ -40,15 +40,22 @@ export const ProfitChart: React.FC = () => {
 
   // Compute profit for an individual order
   const calculateOrderFinancials = (order: Order) => {
-    let orderRevenue = 0;
+    let orderRevenue = order.subtotal || order.total || 0;
     let orderCost = 0;
 
-    order.items.forEach((item) => {
-      const itemPrice = item.product_price;
-      const itemCost = item.product_cost_price || productCostMap[item.product_id] || (itemPrice * 0.75);
-      orderRevenue += itemPrice * item.quantity;
-      orderCost += itemCost * item.quantity;
-    });
+    const items = order?.items || (order as any)?.order_items || [];
+    if (items.length > 0) {
+      orderRevenue = 0;
+      items.forEach((item: any) => {
+        const itemPrice = Number(item.product_price || 0);
+        const itemCost = Number(item.product_cost_price || productCostMap[item.product_id] || (itemPrice * 0.75));
+        const qty = Number(item.quantity || 1);
+        orderRevenue += itemPrice * qty;
+        orderCost += itemCost * qty;
+      });
+    } else {
+      orderCost = Math.round(orderRevenue * 0.75);
+    }
 
     const orderProfit = orderRevenue - orderCost;
     return { orderRevenue, orderCost, orderProfit };

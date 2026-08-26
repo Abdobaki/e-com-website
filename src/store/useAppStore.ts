@@ -85,7 +85,7 @@ export const useAppStore = create<AppStore>()(
             supabase.from('store_settings').select('*').single(),
             supabase.from('suppliers').select('*').order('created_at', { ascending: false }),
             supabase.from('supplier_payments').select('*').order('created_at', { ascending: false }),
-            supabase.from('orders').select('*').order('created_at', { ascending: false })
+            supabase.from('orders').select('*, order_items(*)').order('created_at', { ascending: false })
           ]);
 
           if (catRes.status === 'fulfilled' && catRes.value.data && catRes.value.data.length > 0) {
@@ -125,7 +125,11 @@ export const useAppStore = create<AppStore>()(
           }
 
           if (ordRes.status === 'fulfilled' && ordRes.value.data && ordRes.value.data.length > 0) {
-            set({ orders: ordRes.value.data });
+            const mappedOrders = ordRes.value.data.map((o: any) => ({
+              ...o,
+              items: o.order_items || o.items || []
+            }));
+            set({ orders: mappedOrders });
           }
         } catch {
           // Keep local state

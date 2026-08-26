@@ -252,12 +252,22 @@ export const AdminOrdersPage: React.FC = () => {
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-slate-900 uppercase">Articles</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {selectedOrder.items.map((item: OrderItem, idx: number) => (
-                  <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-slate-50">
-                    <span className="font-semibold text-slate-800">{item.product_name} (x{item.quantity})</span>
-                    <span className="font-bold text-slate-900">{formatPrice(item.product_price * item.quantity)} {currencySymbol}</span>
-                  </div>
-                ))}
+                {(() => {
+                  const orderItems = selectedOrder.items || (selectedOrder as any).order_items || [];
+                  if (orderItems.length === 0) {
+                    return (
+                      <div className="text-xs text-slate-500 italic p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                        Articles enregistrés dans la commande (Total: {formatPrice(selectedOrder.total)} {currencySymbol})
+                      </div>
+                    );
+                  }
+                  return orderItems.map((item: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-semibold text-slate-800">{item.product_name || 'Produit'} (x{item.quantity || 1})</span>
+                      <span className="font-bold text-slate-900">{formatPrice((item.product_price || 0) * (item.quantity || 1))} {currencySymbol}</span>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
 
@@ -265,11 +275,11 @@ export const AdminOrdersPage: React.FC = () => {
             <div className="border-t border-slate-100 pt-3 space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-600">
                 <span>Sous-total</span>
-                <span>{formatPrice(selectedOrder.subtotal)} {currencySymbol}</span>
+                <span>{formatPrice(selectedOrder.subtotal ?? selectedOrder.total)} {currencySymbol}</span>
               </div>
               <div className="flex justify-between text-slate-600">
                 <span>Frais de livraison</span>
-                <span>{selectedOrder.delivery_fee > 0 ? `${formatPrice(selectedOrder.delivery_fee)} ${currencySymbol}` : 'Gratuite'}</span>
+                <span>{(selectedOrder.delivery_fee ?? 0) > 0 ? `${formatPrice(selectedOrder.delivery_fee)} ${currencySymbol}` : 'Gratuite'}</span>
               </div>
               <div className="flex justify-between text-base font-black text-slate-900 pt-2 border-t border-slate-200">
                 <span>Total</span>
