@@ -7,7 +7,9 @@ import {
   ShoppingBag, 
   ArrowLeft,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Home,
+  Building2
 } from 'lucide-react';
 
 import { useCartStore } from '../store/useCartStore';
@@ -27,6 +29,7 @@ export const CheckoutPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [selectedWilayaCode, setSelectedWilayaCode] = useState('16'); // Default to Alger
   const [selectedCommune, setSelectedCommune] = useState('');
+  const [deliveryDestination, setDeliveryDestination] = useState<'home' | 'desk'>('home');
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,7 +88,7 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    if (!address.trim()) {
+    if (deliveryDestination === 'home' && !address.trim()) {
       setErrorMessage(language === 'ar' ? 'يرجى إدخال العنوان الدقيق للتوصيل' : language === 'en' ? 'Please enter your exact delivery address.' : 'Veuillez saisir votre adresse exacte.');
       return;
     }
@@ -102,6 +105,11 @@ export const CheckoutPage: React.FC = () => {
       }));
 
       const wilayaName = language === 'ar' ? currentWilaya.name_ar : currentWilaya.name_fr;
+      const finalAddress = deliveryDestination === 'home'
+        ? address.trim()
+        : (language === 'ar'
+            ? `استلام من المكتب (Stop-Desk) - ${selectedCommune}, ${wilayaName}`
+            : `Récupération au Bureau (Stop-Desk) - ${selectedCommune}, ${wilayaName}`);
 
       const createdOrder = await addOrder({
         customer_name: fullName.trim(),
@@ -109,7 +117,7 @@ export const CheckoutPage: React.FC = () => {
         wilaya: wilayaName,
         wilaya_code: currentWilaya.code,
         commune: selectedCommune,
-        address: address.trim(),
+        address: finalAddress,
         notes: notes.trim() || undefined,
         payment_method: 'cod',
         items: orderItems,
@@ -256,20 +264,100 @@ export const CheckoutPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Exact Address */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {translations.address} <span className="text-red-500">*</span>
+            {/* Mode de réception: Radio Button (À Domicile vs Au Bureau / Stop-Desk) */}
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-bold text-slate-700">
+                {translations.deliveryDestinationType} <span className="text-red-500">*</span>
               </label>
-              <textarea
-                rows={2}
-                required
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder={translations.addressPlaceholder}
-                className="w-full bg-slate-50 border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-slate-900 p-3 rounded-xl text-base sm:text-sm outline-none transition-all"
-              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Option 1: Deliver to Home */}
+                <label
+                  onClick={() => setDeliveryDestination('home')}
+                  className={`p-3.5 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
+                    deliveryDestination === 'home'
+                      ? 'border-amber-500 bg-amber-50/60 shadow-xs ring-2 ring-amber-500/20'
+                      : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryDestination"
+                    value="home"
+                    checked={deliveryDestination === 'home'}
+                    onChange={() => setDeliveryDestination('home')}
+                    className="mt-0.5 text-amber-500 focus:ring-amber-500"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                      <Home className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>{translations.deliverToHome}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      {translations.deliverToHomeDesc}
+                    </p>
+                  </div>
+                </label>
+
+                {/* Option 2: Deliver to Office / Stop-Desk */}
+                <label
+                  onClick={() => setDeliveryDestination('desk')}
+                  className={`p-3.5 rounded-2xl border-2 cursor-pointer flex items-start gap-3 transition-all ${
+                    deliveryDestination === 'desk'
+                      ? 'border-amber-500 bg-amber-50/60 shadow-xs ring-2 ring-amber-500/20'
+                      : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryDestination"
+                    value="desk"
+                    checked={deliveryDestination === 'desk'}
+                    onChange={() => setDeliveryDestination('desk')}
+                    className="mt-0.5 text-amber-500 focus:ring-amber-500"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                      <Building2 className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>{translations.deliverToOffice}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                      {translations.deliverToOfficeDesc}
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
+
+            {/* Exact Address (Only shown when customer chooses to deliver to house) */}
+            {deliveryDestination === 'home' ? (
+              <div className="animate-in fade-in duration-200">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  {translations.address} <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder={translations.addressPlaceholder}
+                  className="w-full bg-slate-50 border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-slate-900 p-3 rounded-xl text-base sm:text-sm outline-none transition-all font-medium"
+                />
+              </div>
+            ) : (
+              /* Informative Office / Stop-Desk Notice */
+              <div className="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-blue-900 text-xs flex items-start gap-2.5 animate-in fade-in duration-200">
+                <Building2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <span className="font-bold block">
+                    {language === 'ar' ? `استلام من مكتب التوصيل في ${selectedCommune}` : `Récupération au Bureau / Stop-Desk à ${selectedCommune}`}
+                  </span>
+                  <p className="text-[11px] text-blue-700 leading-relaxed">
+                    {translations.officeDeliveryNotice}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Order Notes */}
             <div>

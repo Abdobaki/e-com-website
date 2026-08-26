@@ -82,6 +82,12 @@ export interface Translations {
   selectWilaya: string;
   commune: string;
   selectCommune: string;
+  deliveryDestinationType: string;
+  deliverToHome: string;
+  deliverToHomeDesc: string;
+  deliverToOffice: string;
+  deliverToOfficeDesc: string;
+  officeDeliveryNotice: string;
   address: string;
   addressPlaceholder: string;
   orderNotes: string;
@@ -256,6 +262,12 @@ const translations: Record<Language, Translations> = {
     selectWilaya: 'Sélectionnez votre wilaya',
     commune: 'Commune',
     selectCommune: 'Sélectionnez votre commune',
+    deliveryDestinationType: 'Mode de réception du colis',
+    deliverToHome: 'À Domicile (Maison)',
+    deliverToHomeDesc: 'Livraison directe à votre porte / adresse',
+    deliverToOffice: 'Au Bureau / Stop-Desk (Agence)',
+    deliverToOfficeDesc: 'Récupération au bureau de livraison le plus proche',
+    officeDeliveryNotice: 'Votre colis sera acheminé au bureau / stop-desk de livraison de votre commune. Vous recevrez un appel ou SMS pour le récupérer muni de votre pièce d\'identité.',
     address: 'Adresse de livraison exacte',
     addressPlaceholder: 'Rue, N° de maison, Bâtiment...',
     orderNotes: 'Remarques (Optionnel)',
@@ -425,6 +437,12 @@ const translations: Record<Language, Translations> = {
     selectWilaya: 'اختر الولاية',
     commune: 'البلدية',
     selectCommune: 'اختر البلدية',
+    deliveryDestinationType: 'طريقة استلام الطرد',
+    deliverToHome: 'توصيل إلى المنزل',
+    deliverToHomeDesc: 'توصيل مباشر إلى باب منزلك أو عنوانك',
+    deliverToOffice: 'استلام من المكتب (Stop-Desk)',
+    deliverToOfficeDesc: 'الاستلام من أقرب مكتب توصيل في بلديتك',
+    officeDeliveryNotice: 'سيتم شحن طردك إلى أقرب مكتب توصيل في بلديتك، وستتلقى اتصالاً أو رسالة نصية SMS فور وصوله لاستلامه.',
     address: 'العنوان بالتفصيل',
     addressPlaceholder: 'الحي، رقم المنزل أو العمارة...',
     orderNotes: 'ملاحظات إضافية (اختياري)',
@@ -592,9 +610,15 @@ const translations: Record<Language, Translations> = {
     phone: 'Phone Number',
     wilaya: 'Wilaya (Province)',
     selectWilaya: 'Select your wilaya',
-    commune: 'City / Municipality',
+    commune: 'Commune / City',
     selectCommune: 'Select your commune',
-    address: 'Exact Street Address',
+    deliveryDestinationType: 'Delivery Destination',
+    deliverToHome: 'Home Delivery',
+    deliverToHomeDesc: 'Direct delivery to your home doorstep',
+    deliverToOffice: 'Office / Stop-Desk Pickup',
+    deliverToOfficeDesc: 'Pickup at the nearest carrier branch in your city',
+    officeDeliveryNotice: 'Your parcel will be delivered to the local carrier office in your commune. You will receive an SMS/call upon arrival for pickup.',
+    address: 'Exact Delivery Address',
     addressPlaceholder: 'Street, Building / House number...',
     orderNotes: 'Order Notes (Optional)',
     orderNotesPlaceholder: 'e.g. Call before delivery, deliver in the evening...',
