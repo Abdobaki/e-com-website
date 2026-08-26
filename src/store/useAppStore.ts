@@ -401,8 +401,10 @@ export const useAppStore = create<AppStore>()(
       },
 
       addOrder: async (orderData) => {
-        const orderCount = get().orders.length + 1049;
-        const orderNumber = `ORD-${orderCount}`;
+        // Generate unique, collision-proof order number (e.g. ORD-894215)
+        const timestampPart = Date.now().toString().slice(-4);
+        const randomSuffix = Math.floor(100 + Math.random() * 900);
+        const orderNumber = `ORD-${timestampPart}${randomSuffix}`;
         const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'ord-' + Date.now();
         const newOrder: Order = {
           ...orderData,
