@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Category, Order, Product, StoreSettings, Supplier, SupplierPayment } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_SETTINGS } from '../data/mockData';
 import { supabase } from '../lib/supabase';
+import { translateProductFields } from '../lib/translate';
 
 interface AppStore {
   // Data
@@ -147,16 +148,44 @@ export const useAppStore = create<AppStore>()(
         }));
 
         try {
+          // Auto-translate name and description
+          let translatedFields: Partial<Product> = {};
+          try {
+            const translations = await translateProductFields(
+              newProduct.name,
+              newProduct.description
+            );
+            translatedFields = {
+              name: translations.name_fr,
+              name_ar: newProduct.name_ar || translations.name_ar || null,
+              name_en: translations.name_en || null,
+              description: translations.description_fr,
+              description_ar: newProduct.description_ar || translations.description_ar || null,
+              description_en: translations.description_en || null,
+            };
+            // Update local state with translations
+            set((state) => ({
+              products: state.products.map(p =>
+                p.id === newId ? { ...p, ...translatedFields } : p
+              )
+            }));
+            console.log('[Translate] Product translations generated successfully');
+          } catch (translateErr) {
+            console.warn('[Translate] Auto-translation failed, saving without translations:', translateErr);
+          }
+
           const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(newId);
           const isCategoryUuid = productData.category_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productData.category_id);
 
           // Only include columns that exist in the Supabase products table
           const payload: Record<string, unknown> = {
-            name: newProduct.name,
-            name_ar: newProduct.name_ar || null,
+            name: translatedFields.name || newProduct.name,
+            name_ar: translatedFields.name_ar || newProduct.name_ar || null,
+            name_en: translatedFields.name_en || null,
             slug: newProduct.slug,
-            description: newProduct.description,
-            description_ar: newProduct.description_ar || null,
+            description: translatedFields.description || newProduct.description,
+            description_ar: translatedFields.description_ar || newProduct.description_ar || null,
+            description_en: translatedFields.description_en || null,
             specifications: newProduct.specifications || {},
             brand: newProduct.brand,
             price: newProduct.price,
@@ -198,20 +227,48 @@ export const useAppStore = create<AppStore>()(
         }));
 
         try {
+          // Auto-translate if name or description changed
+          let translatedFields: Partial<Product> = {};
+          if (updates.name || updates.description) {
+            try {
+              const currentProduct = get().products.find(p => p.id === id);
+              const nameToTranslate = updates.name || currentProduct?.name || '';
+              const descToTranslate = updates.description || currentProduct?.description || '';
+              const translations = await translateProductFields(nameToTranslate, descToTranslate);
+              translatedFields = {
+                name: translations.name_fr,
+                name_ar: updates.name_ar || translations.name_ar || null,
+                name_en: translations.name_en || null,
+                description: translations.description_fr,
+                description_ar: updates.description_ar || translations.description_ar || null,
+                description_en: translations.description_en || null,
+              };
+              // Merge translations into local state
+              set((state) => ({
+                products: state.products.map(p =>
+                  p.id === id ? { ...p, ...translatedFields } : p
+                )
+              }));
+              console.log('[Translate] Product translations updated successfully');
+            } catch (translateErr) {
+              console.warn('[Translate] Auto-translation failed on update:', translateErr);
+            }
+          }
+
           const isCategoryUuid = updates.category_id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(updates.category_id);
           
           // Only include columns that exist in the Supabase products table
-          // (exclude TypeScript-only fields like name_en, description_en, specifications_ar, etc.)
           const allowedColumns = [
-            'name', 'name_ar', 'slug', 'description', 'description_ar',
+            'name', 'name_ar', 'name_en', 'slug', 'description', 'description_ar', 'description_en',
             'specifications', 'brand', 'price', 'original_price', 'cost_price',
             'supplier', 'supplier_paid', 'images', 'stock', 'is_active', 'is_featured',
             'category_id', 'updated_at'
           ];
+          const mergedUpdates = { ...updates, ...translatedFields };
           const cleanUpdates: Record<string, unknown> = {};
           for (const key of allowedColumns) {
-            if (key in updates) {
-              cleanUpdates[key] = (updates as Record<string, unknown>)[key];
+            if (key in mergedUpdates) {
+              cleanUpdates[key] = (mergedUpdates as Record<string, unknown>)[key];
             }
           }
           if (updates.category_id && !isCategoryUuid) {
