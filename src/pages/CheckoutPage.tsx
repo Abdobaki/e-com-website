@@ -52,8 +52,13 @@ export const CheckoutPage: React.FC = () => {
   // Check if order has free delivery (all items in cart have free delivery enabled by admin)
   const isFreeDeliveryOrder = items.length > 0 && items.every((item) => Boolean(item.product.is_free_delivery));
 
-  // Calculate Delivery Fee: 0 only if admin marked product as free delivery, otherwise the exact wilaya rate
-  const deliveryFee = isFreeDeliveryOrder ? 0 : (currentWilaya?.delivery_fee ?? 500);
+  // Determine distinct rates for Home vs Office / Stop-Desk
+  const homeDeliveryFee = currentWilaya?.delivery_fee ?? 450;
+  const deskDeliveryFee = currentWilaya?.desk_fee ?? Math.max(250, homeDeliveryFee - 150);
+
+  // Active delivery fee based on selected destination
+  const activeFee = deliveryDestination === 'desk' ? deskDeliveryFee : homeDeliveryFee;
+  const deliveryFee = isFreeDeliveryOrder ? 0 : activeFee;
   const total = subtotal + deliveryFee;
 
   const currencySymbol = language === 'ar' ? settings.currency_ar || 'د.ج' : settings.currency || 'DA';
@@ -248,7 +253,9 @@ export const CheckoutPage: React.FC = () => {
               <div className="flex items-center gap-2 text-slate-800 font-bold">
                 <Truck className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>
-                  {language === 'ar' ? `تكلفة التوصيل إلى ${currentWilaya.name_ar}` : `Frais de livraison vers ${currentWilaya.name_fr}`} :
+                  {language === 'ar' 
+                    ? `تكلفة التوصيل إلى ${currentWilaya.name_ar} (${deliveryDestination === 'home' ? 'للمنزل' : 'للمكتب'})` 
+                    : `Frais de livraison vers ${currentWilaya.name_fr} (${deliveryDestination === 'home' ? 'À Domicile' : 'Au Bureau / Stop-Desk'})`} :
                 </span>
               </div>
               <div>
@@ -258,7 +265,7 @@ export const CheckoutPage: React.FC = () => {
                   </span>
                 ) : (
                   <span className="font-black text-amber-900 text-sm">
-                    {formatPrice(currentWilaya.delivery_fee)} {currencySymbol}
+                    {formatPrice(deliveryFee)} {currencySymbol}
                   </span>
                 )}
               </div>
@@ -289,9 +296,18 @@ export const CheckoutPage: React.FC = () => {
                     className="mt-0.5 text-amber-500 focus:ring-amber-500"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                      <Home className="w-4 h-4 text-amber-600 shrink-0" />
-                      <span>{translations.deliverToHome}</span>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                        <Home className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>{translations.deliverToHome}</span>
+                      </div>
+                      <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                        isFreeDeliveryOrder 
+                          ? 'bg-emerald-100 text-emerald-700' 
+                          : 'bg-slate-200/80 text-slate-800'
+                      }`}>
+                        {isFreeDeliveryOrder ? translations.freeDelivery : `${formatPrice(homeDeliveryFee)} ${currencySymbol}`}
+                      </span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                       {translations.deliverToHomeDesc}
@@ -317,9 +333,18 @@ export const CheckoutPage: React.FC = () => {
                     className="mt-0.5 text-amber-500 focus:ring-amber-500"
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
-                      <Building2 className="w-4 h-4 text-amber-600 shrink-0" />
-                      <span>{translations.deliverToOffice}</span>
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs sm:text-sm">
+                        <Building2 className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>{translations.deliverToOffice}</span>
+                      </div>
+                      <span className={`text-xs font-black px-2 py-0.5 rounded-md ${
+                        isFreeDeliveryOrder 
+                          ? 'bg-emerald-100 text-emerald-700' 
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}>
+                        {isFreeDeliveryOrder ? translations.freeDelivery : `${formatPrice(deskDeliveryFee)} ${currencySymbol}`}
+                      </span>
                     </div>
                     <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                       {translations.deliverToOfficeDesc}
@@ -439,12 +464,12 @@ export const CheckoutPage: React.FC = () => {
               </span>
             </div>
 
-            {/* Delivery fee row (Controlled by admin toggle & product free delivery) */}
+            {/* Delivery fee row */}
             <div className="flex justify-between text-slate-600 items-center">
               <div>
                 <span>{translations.deliveryFee}</span>
                 <span className="text-xs text-slate-400 block">
-                  ({language === 'ar' ? currentWilaya.name_ar : currentWilaya.name_fr})
+                  ({language === 'ar' ? currentWilaya.name_ar : currentWilaya.name_fr} — {deliveryDestination === 'home' ? (language === 'ar' ? 'منزل' : 'Domicile') : (language === 'ar' ? 'مكتب' : 'Stop-Desk')})
                 </span>
               </div>
               <span className="font-bold text-slate-900">

@@ -124,7 +124,8 @@ export interface Wilaya {
   code: string;
   name_fr: string;
   name_ar: string;
-  delivery_fee: number;
+  delivery_fee: number; // Home delivery fee
+  desk_fee?: number;    // Office / Stop-desk delivery fee
   is_active: boolean;
   communes: string[];
 }
