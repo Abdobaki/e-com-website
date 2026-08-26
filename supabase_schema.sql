@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     original_price INT, -- previous price if discounted (red strikethrough in UI)
     cost_price INT, -- wholesale / purchase price (private to admin)
     supplier TEXT, -- supplier / fournisseur (private to admin)
+    supplier_paid INT DEFAULT 0,
     images TEXT[] DEFAULT ARRAY[]::TEXT[],
 
     stock INT DEFAULT 0 NOT NULL,
@@ -138,51 +139,75 @@ ALTER TABLE public.store_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.suppliers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.supplier_payments ENABLE ROW LEVEL SECURITY;
 
--- 10. POLICIES
--- Categories: Anyone can read active categories
+-- 10. POLICIES (DROP EXISTING FIRST TO AVOID DUPLICATE ERRORS)
+DROP POLICY IF EXISTS "Public can view active categories" ON public.categories;
 CREATE POLICY "Public can view active categories" ON public.categories
 FOR SELECT USING (is_active = true);
 
--- Products: Anyone can read active products
+DROP POLICY IF EXISTS "Public can view active products" ON public.products;
 CREATE POLICY "Public can view active products" ON public.products
 FOR SELECT USING (is_active = true);
 
--- Orders: Anyone can create (submit) an order (Guest checkout)
+DROP POLICY IF EXISTS "Public can create orders" ON public.orders;
 CREATE POLICY "Public can create orders" ON public.orders
 FOR INSERT WITH CHECK (true);
 
--- Order Items: Anyone can insert order items
+DROP POLICY IF EXISTS "Public can insert order items" ON public.order_items;
 CREATE POLICY "Public can insert order items" ON public.order_items
 FOR INSERT WITH CHECK (true);
 
--- Store settings: Anyone can view store settings
+DROP POLICY IF EXISTS "Public can view store settings" ON public.store_settings;
 CREATE POLICY "Public can view store settings" ON public.store_settings
 FOR SELECT USING (true);
 
 -- Authenticated Users (Admins) have full access
+DROP POLICY IF EXISTS "Admins have full access on categories" ON public.categories;
 CREATE POLICY "Admins have full access on categories" ON public.categories
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on products" ON public.products;
 CREATE POLICY "Admins have full access on products" ON public.products
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on orders" ON public.orders;
 CREATE POLICY "Admins have full access on orders" ON public.orders
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on order_items" ON public.order_items;
 CREATE POLICY "Admins have full access on order_items" ON public.order_items
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on store_settings" ON public.store_settings;
 CREATE POLICY "Admins have full access on store_settings" ON public.store_settings
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on suppliers" ON public.suppliers;
 CREATE POLICY "Admins have full access on suppliers" ON public.suppliers
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins have full access on supplier_payments" ON public.supplier_payments;
 CREATE POLICY "Admins have full access on supplier_payments" ON public.supplier_payments
 FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- Allow anon read on suppliers, supplier_payments, and orders if needed for store overview
+DROP POLICY IF EXISTS "Public can view suppliers" ON public.suppliers;
+CREATE POLICY "Public can view suppliers" ON public.suppliers
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view supplier_payments" ON public.supplier_payments;
+CREATE POLICY "Public can view supplier_payments" ON public.supplier_payments
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view orders" ON public.orders;
+CREATE POLICY "Public can view orders" ON public.orders
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view order_items" ON public.order_items;
+CREATE POLICY "Public can view order_items" ON public.order_items
+FOR SELECT USING (true);
+
 -- ==============================================================================
--- 11. OPTIONAL INITIAL SEED DATA (Run this to populate initial categories & products)
+-- 11. OPTIONAL INITIAL SEED DATA
 -- ==============================================================================
 
 -- Categories Seed
