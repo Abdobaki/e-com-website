@@ -16,28 +16,18 @@ import {
 } from 'lucide-react';
 import { useLanguageStore } from '../lib/i18n';
 import { useAppStore } from '../store/useAppStore';
+import { supabase } from '../lib/supabase';
 import type { Language } from '../types';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t, language, setLanguage } = useLanguageStore();
-  const { settings, isAdminLoggedIn, logoutAdmin } = useAppStore();
+  const { settings, isAdminLoggedIn, loginAdmin, logoutAdmin } = useAppStore();
   const translations = t();
 
-
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-
-  // Check login
-  React.useEffect(() => {
-    if (!isAdminLoggedIn && location.pathname !== '/admin/login') {
-      navigate('/admin/login');
-    }
-  }, [isAdminLoggedIn, location.pathname, navigate]);
-
-  if (!isAdminLoggedIn && location.pathname !== '/admin/login') {
-    return null;
-  }
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
 
   const navItems = [
     { label: translations.dashboard, path: '/admin/dashboard', icon: LayoutDashboard },
@@ -48,10 +38,73 @@ export const AdminLayout: React.FC = () => {
     { label: translations.settings, path: '/admin/settings', icon: Settings },
   ];
 
-  const handleLogout = () => {
+  // Strictly verify Supabase Auth session on mount and route change
+  React.useEffect(() => {
+    let mounted = true;
+
+    const verifySession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          logoutAdmin();
+          if (mounted) {
+            setIsCheckingAuth(false);
+            navigate('/admin/login', { replace: true });
+          }
+        } else {
+          loginAdmin(data.session.user.email || 'Admin');
+          if (mounted) {
+            setIsCheckingAuth(false);
+          }
+        }
+      } catch {
+        logoutAdmin();
+        if (mounted) {
+          setIsCheckingAuth(false);
+          navigate('/admin/login', { replace: true });
+        }
+      }
+    };
+
+    verifySession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        logoutAdmin();
+        navigate('/admin/login', { replace: true });
+      }
+    });
+
+    return () => {
+      mounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
+  }, [navigate, logoutAdmin, loginAdmin]);
+
+  const handleLogout = async () => {
     logoutAdmin();
-    navigate('/admin/login');
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // ignore
+    }
+    navigate('/admin/login', { replace: true });
   };
+
+  // Loading state while verifying token
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="w-10 h-10 border-3 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="text-xs font-bold text-slate-400">Vérification des accès administrateur...</span>
+      </div>
+    );
+  }
+
+  // Prevent any rendering if unauthenticated
+  if (!isAdminLoggedIn) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">

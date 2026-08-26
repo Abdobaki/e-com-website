@@ -22,20 +22,13 @@ export const AdminLoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Authenticate with Supabase Auth
+      // Authenticate strictly with Supabase Auth
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password,
       });
 
       if (authError) {
-        // Fallback for default admin
-        if (email.trim() === 'admin@cuisinedz.com' && password === 'admin123456') {
-          loginAdmin(email.trim());
-          navigate('/admin/dashboard');
-          return;
-        }
-
         let msg = authError.message;
         if (authError.message.includes('Invalid login credentials')) {
           msg = language === 'ar'
@@ -43,20 +36,15 @@ export const AdminLoginPage: React.FC = () => {
             : 'Identifiants incorrects. Vérifiez l\'email et le mot de passe dans Supabase Auth.';
         } else if (authError.message.includes('Forbidden use of secret API key') || authError.message.includes('secret API key')) {
           msg = language === 'ar'
-            ? 'خطأ في مفتاح Supabase: استخدم مفتاح anon public من لوحة تحكم Supabase وليس مفتاح service_role.'
-            : 'Erreur clé API : Vous utilisez la clé secrète (service_role). Veuillez utiliser la clé publique "anon public" dans votre fichier .env.';
+            ? 'خطأ في مفتاح Supabase: استخدم مفتاح anon public من لوحة تحكم Supabase.'
+            : 'Erreur clé API : Veuillez utiliser la clé publique "anon public" dans votre configuration.';
         }
         setError(msg);
-      } else if (data?.user) {
+      } else if (data?.session && data?.user) {
         loginAdmin(data.user.email || email.trim());
-        navigate('/admin/dashboard');
+        navigate('/admin/dashboard', { replace: true });
       }
     } catch (err: unknown) {
-      if (email.trim() === 'admin@cuisinedz.com' && password === 'admin123456') {
-        loginAdmin(email.trim());
-        navigate('/admin/dashboard');
-        return;
-      }
       setError(err instanceof Error ? err.message : 'Erreur de connexion.');
     } finally {
       setLoading(false);

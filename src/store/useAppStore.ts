@@ -670,6 +670,14 @@ export const useAppStore = create<AppStore>()(
     }),
     {
       name: 'cuisinedz_main_app_store_v4',
+      partialize: (state) => ({
+        categories: state.categories,
+        products: state.products,
+        settings: state.settings,
+        suppliers: state.suppliers,
+        supplierPayments: state.supplierPayments,
+        orders: state.orders
+      })
     }
   )
 );
