@@ -157,11 +157,11 @@ export const useAppStore = create<AppStore>()(
             );
             translatedFields = {
               name: translations.name_fr,
-              name_ar: newProduct.name_ar || translations.name_ar || null,
-              name_en: translations.name_en || null,
+              name_ar: newProduct.name_ar || translations.name_ar || undefined,
+              name_en: translations.name_en || undefined,
               description: translations.description_fr,
-              description_ar: newProduct.description_ar || translations.description_ar || null,
-              description_en: translations.description_en || null,
+              description_ar: newProduct.description_ar || translations.description_ar || undefined,
+              description_en: translations.description_en || undefined,
             };
             // Update local state with translations
             set((state) => ({
@@ -197,6 +197,7 @@ export const useAppStore = create<AppStore>()(
             stock: newProduct.stock,
             is_active: newProduct.is_active,
             is_featured: newProduct.is_featured,
+            is_free_delivery: Boolean(newProduct.is_free_delivery),
           };
 
           if (isUuid) payload.id = newId;
@@ -237,11 +238,11 @@ export const useAppStore = create<AppStore>()(
               const translations = await translateProductFields(nameToTranslate, descToTranslate);
               translatedFields = {
                 name: translations.name_fr,
-                name_ar: updates.name_ar || translations.name_ar || null,
-                name_en: translations.name_en || null,
+                name_ar: updates.name_ar || translations.name_ar || undefined,
+                name_en: translations.name_en || undefined,
                 description: translations.description_fr,
-                description_ar: updates.description_ar || translations.description_ar || null,
-                description_en: translations.description_en || null,
+                description_ar: updates.description_ar || translations.description_ar || undefined,
+                description_en: translations.description_en || undefined,
               };
               // Merge translations into local state
               set((state) => ({
@@ -261,7 +262,7 @@ export const useAppStore = create<AppStore>()(
           const allowedColumns = [
             'name', 'name_ar', 'name_en', 'slug', 'description', 'description_ar', 'description_en',
             'specifications', 'brand', 'price', 'original_price', 'cost_price',
-            'supplier', 'supplier_paid', 'images', 'stock', 'is_active', 'is_featured',
+            'supplier', 'supplier_paid', 'images', 'stock', 'is_active', 'is_featured', 'is_free_delivery',
             'category_id', 'updated_at'
           ];
           const mergedUpdates = { ...updates, ...translatedFields };

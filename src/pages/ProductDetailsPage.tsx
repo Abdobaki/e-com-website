@@ -210,6 +210,19 @@ export const ProductDetailsPage: React.FC = () => {
                   {currencySymbol}
                 </span>
               </div>
+
+              {/* Free delivery line - ONLY SHOWN WHEN ADMIN SETS IT */}
+              {product.is_free_delivery && (
+                <div className="pt-2 mt-2 border-t border-slate-200/60 flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-700">
+                    {translations.deliveryFee} :
+                  </span>
+                  <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100/90 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                    <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                    {translations.freeDelivery}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Short Description */}

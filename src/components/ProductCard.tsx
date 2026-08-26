@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Eye, CheckCircle2, AlertTriangle, XCircle, MessageCircle } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle2, AlertTriangle, XCircle, MessageCircle, Truck } from 'lucide-react';
 import type { Product } from '../types';
 
 import { useCartStore } from '../store/useCartStore';
@@ -48,14 +48,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="group relative bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-amber-400/50 transition-all duration-300 flex flex-col overflow-hidden">
       {/* Top badges */}
       <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-        {/* Discount badge */}
-        {hasDiscount ? (
-          <span className="bg-red-500 text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-md animate-pulse">
-            -{discountPercent}%
-          </span>
-        ) : (
-          <span />
-        )}
+        {/* Left: Discount badge OR Free delivery badge */}
+        <div className="flex flex-col gap-1 items-start">
+          {hasDiscount && (
+            <span className="bg-red-500 text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-md animate-pulse">
+              -{discountPercent}%
+            </span>
+          )}
+          {product.is_free_delivery && (
+            <span className="bg-emerald-600 text-white font-bold text-[10px] sm:text-xs px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+              <Truck className="w-3 h-3" />
+              {translations.freeDelivery}
+            </span>
+          )}
+        </div>
 
         {/* Stock badge */}
         {isOutOfStock ? (

@@ -162,7 +162,11 @@ export const CartPage: React.FC = () => {
             <div className="flex justify-between text-slate-600">
               <span>{translations.deliveryFee}</span>
               <span className="font-medium text-slate-500 text-xs sm:text-sm">
-                {translations.calculatedNextStep}
+                {items.length > 0 && items.every((i) => Boolean(i.product.is_free_delivery)) ? (
+                  <span className="text-emerald-600 font-extrabold">{translations.freeDelivery}</span>
+                ) : (
+                  translations.calculatedNextStep
+                )}
               </span>
             </div>
 

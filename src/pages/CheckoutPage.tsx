@@ -46,8 +46,11 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [currentWilaya]);
 
-  // Calculate Delivery Fee based on admin toggle
-  const deliveryFee = settings.delivery_enabled ? currentWilaya.delivery_fee : 0;
+  // Check if order has free delivery (all items in cart have free delivery)
+  const isFreeDeliveryOrder = items.length > 0 && items.every((item) => Boolean(item.product.is_free_delivery));
+
+  // Calculate Delivery Fee based on admin toggle AND product-level free delivery
+  const deliveryFee = (!isFreeDeliveryOrder && settings.delivery_enabled) ? currentWilaya.delivery_fee : 0;
   const total = subtotal + deliveryFee;
 
   const currencySymbol = language === 'ar' ? settings.currency_ar || 'د.ج' : settings.currency || 'DA';
@@ -327,7 +330,7 @@ export const CheckoutPage: React.FC = () => {
               </span>
             </div>
 
-            {/* Delivery fee row (Controlled by admin toggle) */}
+            {/* Delivery fee row (Controlled by admin toggle & product free delivery) */}
             <div className="flex justify-between text-slate-600 items-center">
               <div>
                 <span>{translations.deliveryFee}</span>
@@ -336,7 +339,7 @@ export const CheckoutPage: React.FC = () => {
                 </span>
               </div>
               <span className="font-bold text-slate-900">
-                {settings.delivery_enabled ? (
+                {deliveryFee > 0 ? (
                   `${formatPrice(deliveryFee)} ${currencySymbol}`
                 ) : (
                   <span className="text-emerald-600 font-extrabold">{translations.freeDelivery}</span>

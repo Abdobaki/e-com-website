@@ -40,6 +40,7 @@ export interface Product {
   stock: number;
   is_active: boolean;
   is_featured: boolean;
+  is_free_delivery?: boolean;
   rating?: number;
   reviews_count?: number;
   created_at?: string;

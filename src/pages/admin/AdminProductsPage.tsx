@@ -10,7 +10,8 @@ import {
   UploadCloud,
   Lock,
   TrendingUp,
-  Building2
+  Building2,
+  Truck
 } from 'lucide-react';
 import { useLanguageStore } from '../../lib/i18n';
 import { useAppStore } from '../../store/useAppStore';
@@ -43,6 +44,7 @@ export const AdminProductsPage: React.FC = () => {
   const [descriptionAr, setDescriptionAr] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [isFreeDelivery, setIsFreeDelivery] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   // Close modal on Escape key
@@ -74,6 +76,7 @@ export const AdminProductsPage: React.FC = () => {
     setDescriptionAr('');
     setIsFeatured(false);
     setIsActive(true);
+    setIsFreeDelivery(false);
     setIsModalOpen(true);
   };
 
@@ -95,6 +98,7 @@ export const AdminProductsPage: React.FC = () => {
     setDescriptionAr(p.description_ar || '');
     setIsFeatured(p.is_featured);
     setIsActive(p.is_active);
+    setIsFreeDelivery(Boolean(p.is_free_delivery));
     setIsModalOpen(true);
   };
 
@@ -176,6 +180,7 @@ export const AdminProductsPage: React.FC = () => {
       specifications: editingProduct?.specifications || { 'Garantie': '24 Mois', 'Origine': 'Importé' },
       is_featured: isFeatured,
       is_active: isActive,
+      is_free_delivery: isFreeDelivery,
     };
 
     if (editingProduct) {
@@ -302,6 +307,12 @@ export const AdminProductsPage: React.FC = () => {
                             {product.brand}
                           </span>
                           <h4 className="font-bold text-slate-900 truncate mt-0.5">{product.name}</h4>
+                          {product.is_free_delivery && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded mt-0.5">
+                              <Truck className="w-3 h-3" />
+                              Livraison Gratuite
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -716,6 +727,32 @@ export const AdminProductsPage: React.FC = () => {
                   placeholder="Décrivez les fonctionnalités de l'appareil..."
                   className="w-full bg-slate-50 border border-slate-300 p-2.5 rounded-xl outline-none focus:border-amber-500"
                 />
+              </div>
+
+              {/* Option Livraison Gratuite (Offerte par l'admin) */}
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <Truck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 text-xs sm:text-sm block">
+                      Livraison Gratuite (Offerte)
+                    </span>
+                    <span className="text-[11px] text-slate-500 block">
+                      Si activé, la mention "Frais de livraison Gratuite" apparaîtra sur la fiche du produit et la livraison sera à 0 DA.
+                    </span>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                  <input
+                    type="checkbox"
+                    checked={isFreeDelivery}
+                    onChange={(e) => setIsFreeDelivery(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
               </div>
 
               {/* Toggles */}

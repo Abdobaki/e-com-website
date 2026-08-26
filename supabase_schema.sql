@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.products (
     stock INT DEFAULT 0 NOT NULL,
     is_active BOOLEAN DEFAULT true NOT NULL,
     is_featured BOOLEAN DEFAULT false NOT NULL,
+    is_free_delivery BOOLEAN DEFAULT false NOT NULL,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
