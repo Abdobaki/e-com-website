@@ -46,11 +46,11 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [currentWilaya]);
 
-  // Check if order has free delivery (all items in cart have free delivery)
+  // Check if order has free delivery (all items in cart have free delivery enabled by admin)
   const isFreeDeliveryOrder = items.length > 0 && items.every((item) => Boolean(item.product.is_free_delivery));
 
-  // Calculate Delivery Fee based on admin toggle AND product-level free delivery
-  const deliveryFee = (!isFreeDeliveryOrder && settings.delivery_enabled) ? currentWilaya.delivery_fee : 0;
+  // Calculate Delivery Fee: 0 only if admin marked product as free delivery, otherwise the exact wilaya rate
+  const deliveryFee = isFreeDeliveryOrder ? 0 : (currentWilaya?.delivery_fee ?? 500);
   const total = subtotal + deliveryFee;
 
   const currencySymbol = language === 'ar' ? settings.currency_ar || 'د.ج' : settings.currency || 'DA';
@@ -207,7 +207,7 @@ export const CheckoutPage: React.FC = () => {
                   >
                     {ALGERIA_WILAYAS.map((w) => (
                       <option key={w.code} value={w.code}>
-                        {language === 'ar' ? w.name_ar : w.name_fr}
+                        {language === 'ar' ? w.name_ar : w.name_fr} {isFreeDeliveryOrder ? (language === 'ar' ? '(توصيل مجاني)' : '(Gratuit)') : `(+${formatPrice(w.delivery_fee)} ${currencySymbol})`}
                       </option>
                     ))}
                   </select>
@@ -232,6 +232,27 @@ export const CheckoutPage: React.FC = () => {
                     ))}
                   </select>
                 </div>
+              </div>
+            </div>
+
+            {/* Delivery fee live info banner */}
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-slate-800 font-bold">
+                <Truck className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>
+                  {language === 'ar' ? `تكلفة التوصيل إلى ${currentWilaya.name_ar}` : `Frais de livraison vers ${currentWilaya.name_fr}`} :
+                </span>
+              </div>
+              <div>
+                {isFreeDeliveryOrder ? (
+                  <span className="font-extrabold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                    {translations.freeDelivery} (0 {currencySymbol})
+                  </span>
+                ) : (
+                  <span className="font-black text-amber-900 text-sm">
+                    {formatPrice(currentWilaya.delivery_fee)} {currencySymbol}
+                  </span>
+                )}
               </div>
             </div>
 
